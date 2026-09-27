@@ -1,0 +1,14 @@
+{
+  "name": "reporteme",
+  "owner": { "name": "Reporte.me", "email": "contato@reporte.me" },
+  "metadata": {
+    "description": "Plugins oficiais do Reporte.me para agentes de IA."
+  },
+  "plugins": [
+    {
+      "name": "reporteme",
+      "source": "./plugins/reporteme",
+      "description": "Executa tarefas e histórias do Reporte.me pelo código (/reporteme RPM-42): lê a tarefa, corrige no seu projeto, atualiza status, checklist e custo de tokens."
+    }
+  ]
+}

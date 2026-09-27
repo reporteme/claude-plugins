@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "reporteme": {
+      "type": "http",
+      "url": "${REPORTEME_URL:-https://mcp.reporte.me}/mcp",
+      "headers": {
+        "Authorization": "Bearer ${REPORTEME_TOKEN}"
+      }
+    }
+  }
+}
