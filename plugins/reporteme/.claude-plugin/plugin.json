@@ -1,6 +1,6 @@
 {
   "name": "reporteme",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Executa tarefas e histórias do Reporte.me pelo código: lê a tarefa (descrição, print, caminho HTML), corrige no projeto, atualiza status/checklist e registra o custo de tokens.",
   "author": { "name": "Reporte.me" },
   "homepage": "https://reporte.me/integrations/manual",

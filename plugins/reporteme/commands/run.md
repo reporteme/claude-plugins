@@ -1,11 +1,19 @@
 ---
-description: "Executa uma tarefa ou história do Reporte.me pelo código (ex.: /reporteme RPM-42)"
+description: "Executa uma tarefa ou história do Reporte.me pelo código (ex.: /reporteme:run RPM-42)"
 argument-hint: "<código> [instrução adicional]"
 ---
 
 Você vai executar o item do Reporte.me `$ARGUMENTS` **neste repositório** usando as tools do servidor MCP `reporteme`.
 
-O primeiro termo é o código (ex.: `RPM-42`); o resto, se houver, é uma instrução adicional do usuário.
+O primeiro termo é o código (ex.: `RPM-42`); o resto, se houver, é uma instrução adicional do usuário. Sem código, pergunte qual tarefa ou história executar e pare.
+
+## 0. Pré-requisito
+
+Se as tools do servidor `reporteme` (`resolve_code`, `start_task`…) não estiverem disponíveis nesta sessão, **não tente configurar nada**: o plugin já declara o servidor. Diga ao usuário, e pare, que:
+
+- o Claude Code não está vendo a variável `REPORTEME_TOKEN` (ou `REPORTEME_URL`, fora de produção) — ela precisa estar no perfil do shell antes de abrir o Claude Code; depois de gravá-la, abra um terminal novo (ou reinicie o editor);
+- `/mcp` mostra se o servidor `reporteme` conectou;
+- o passo a passo está em https://reporte.me/integrations/manual.
 
 ## Regras de segurança (valem o tempo todo)
 

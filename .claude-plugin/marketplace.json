@@ -8,7 +8,7 @@
     {
       "name": "reporteme",
       "source": "./plugins/reporteme",
-      "description": "Executa tarefas e histórias do Reporte.me pelo código (/reporteme RPM-42): lê a tarefa, corrige no seu projeto, atualiza status, checklist e custo de tokens."
+      "description": "Executa tarefas e histórias do Reporte.me pelo código (/reporteme:run RPM-42): lê a tarefa, corrige no seu projeto, atualiza status, checklist e custo de tokens."
     }
   ]
 }
