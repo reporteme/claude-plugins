@@ -124,3 +124,65 @@ export function buildReports(messages) {
   })
   return { tasks, stories }
 }
+
+// ── Recibos de uso ────────────────────────────────────────────────────────────
+//
+// `finish_task`/`finish_story_run` devolvem `{ code, usageReceipt }`: o recibo
+// autoriza SÓ o envio do uso daquela execução. Com login OAuth o hook não tem
+// o token (quem guarda é o Claude Code), então é o recibo que vai no Bearer.
+
+const FINISH_SUFFIX = /__(finish_task|finish_story_run)$/
+
+/**
+ * `{ code, usageReceipt }` de uma resposta de tool, em qualquer das formas que
+ * o Claude Code grava: string JSON, `[{ type: 'text', text }]` ou `{ content }`.
+ */
+export function finishResult(value) {
+  if (typeof value === 'string') {
+    try {
+      return finishResult(JSON.parse(value))
+    } catch {
+      return null
+    }
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = finishResult(item?.type === 'text' ? item.text : item)
+      if (found) return found
+    }
+    return null
+  }
+  if (value && typeof value === 'object') {
+    if (typeof value.usageReceipt === 'string' && typeof value.code === 'string') {
+      return { code: value.code.toUpperCase(), receipt: value.usageReceipt }
+    }
+    if ('content' in value) return finishResult(value.content)
+  }
+  return null
+}
+
+/**
+ * Recibos do transcript: casa cada `tool_use` de `finish_*` (código digitado
+ * pelo agente) com o `tool_result` dele. Chave = código digitado em maiúsculas,
+ * o mesmo dos trechos de `buildReports`; o último fechamento vence.
+ */
+export function receiptsFromRows(rows) {
+  const calls = new Map()
+  const receipts = new Map()
+  for (const row of rows) {
+    const content = row?.message?.content
+    if (!Array.isArray(content)) continue
+    for (const block of content) {
+      const ours = typeof block?.name === 'string' && block.name.includes('reporteme')
+      if (block?.type === 'tool_use' && ours && FINISH_SUFFIX.test(block.name)) {
+        const code = String(block.input?.code ?? block.input?.story_code ?? '').trim().toUpperCase()
+        if (code) calls.set(block.id, code)
+      }
+      if (block?.type === 'tool_result' && calls.has(block.tool_use_id)) {
+        const result = finishResult(block.content)
+        if (result) receipts.set(calls.get(block.tool_use_id), result)
+      }
+    }
+  }
+  return receipts
+}

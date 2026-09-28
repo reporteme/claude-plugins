@@ -9,10 +9,10 @@ O primeiro termo é o código (ex.: `RPM-42`); o resto, se houver, é uma instru
 
 ## 0. Pré-requisito
 
-Se as tools do servidor `reporteme` (`resolve_code`, `start_task`…) não estiverem disponíveis nesta sessão, **não tente configurar nada**: o plugin já declara o servidor. Diga ao usuário, e pare, que:
+Se as tools do servidor `reporteme` (`resolve_code`, `start_task`…) não estiverem disponíveis nesta sessão, **não tente configurar nada**: o plugin já declara o servidor e o login é do usuário. Diga ao usuário, e pare, que:
 
-- o Claude Code não está vendo a variável `REPORTEME_TOKEN` (ou `REPORTEME_URL`, fora de produção) — ela precisa estar no perfil do shell antes de abrir o Claude Code; depois de gravá-la, abra um terminal novo (ou reinicie o editor);
-- `/mcp` mostra se o servidor `reporteme` conectou;
+- ele precisa entrar no Reporte.me: `/mcp` → `reporteme` → **Authenticate** (abre o navegador; ele autoriza e volta);
+- se o `/mcp` mostrar o servidor com erro, confira a versão do Claude Code (`claude --version`) e o manual;
 - o passo a passo está em https://reporte.me/integrations/manual.
 
 ## Regras de segurança (valem o tempo todo)

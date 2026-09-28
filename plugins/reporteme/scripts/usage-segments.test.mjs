@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
-import { assistantMessages, buildReports, normalizeUsage } from './usage-segments.mjs'
+import {
+  assistantMessages,
+  buildReports,
+  finishResult,
+  normalizeUsage,
+  receiptsFromRows,
+} from './usage-segments.mjs'
 
 const TOOL = 'mcp__plugin_reporteme_reporteme__'
 let clock = Date.parse('2026-09-27T12:00:00Z')
@@ -79,4 +85,53 @@ test('ignora tools de outros servidores com o mesmo nome', () => {
     return r
   })
   assert.equal(buildReports(assistantMessages(rows)).tasks.length, 0)
+})
+
+/** Resposta de tool gravada no transcript (registro `user` com `tool_result`). */
+function toolResult(id, payload, shape = 'blocks') {
+  const text = JSON.stringify(payload)
+  return {
+    type: 'user',
+    timestamp: new Date(clock).toISOString(),
+    message: {
+      role: 'user',
+      content: [
+        { type: 'tool_result', tool_use_id: `tu-${id}`, content: shape === 'blocks' ? [{ type: 'text', text }] : text },
+      ],
+    },
+  }
+}
+
+test('recibo: casa o finish (código digitado) com o resultado (código canônico)', () => {
+  const rows = [
+    ...message('s', { tool: 'start_task', args: { code: 'rpm-42' } }),
+    ...message('f', { tool: 'finish_task', args: { code: 'rpm-42' } }),
+    toolResult('f', { runId: 'r1', code: 'RPM-42', usageReceipt: 'a.b.c' }),
+    ...message('q', { tool: 'finish_story_run', args: { story_code: 'RPM-1' } }),
+    toolResult('q', { storyRunId: 's1', code: 'RPM-1', usageReceipt: 'd.e.f' }, 'string'),
+  ]
+  const receipts = receiptsFromRows(rows)
+  assert.deepEqual(receipts.get('RPM-42'), { code: 'RPM-42', receipt: 'a.b.c' })
+  assert.deepEqual(receipts.get('RPM-1'), { code: 'RPM-1', receipt: 'd.e.f' })
+})
+
+test('recibo: sem usageReceipt (token sem tasks:cost) ou erro da tool → nada', () => {
+  const rows = [
+    ...message('f', { tool: 'finish_task', args: { code: 'RPM-7' } }),
+    toolResult('f', { runId: 'r1', code: 'RPM-7', usageReceipt: null }),
+    ...message('g', { tool: 'start_task', args: { code: 'RPM-8' } }),
+    toolResult('g', { code: 'RPM-8', usageReceipt: 'x.y.z' }),
+  ]
+  const receipts = receiptsFromRows(rows)
+  assert.equal(receipts.size, 0)
+  assert.equal(finishResult('{"code":"RPM-9","message":"NO_ACTIVE_RUN"}'), null)
+  assert.equal(finishResult('não é json'), null)
+})
+
+test('recibo: tool_response do PostToolUse em qualquer forma', () => {
+  const payload = { code: 'rpm-3', usageReceipt: 'r.e.c' }
+  const expected = { code: 'RPM-3', receipt: 'r.e.c' }
+  assert.deepEqual(finishResult(payload), expected)
+  assert.deepEqual(finishResult([{ type: 'text', text: JSON.stringify(payload) }]), expected)
+  assert.deepEqual(finishResult({ content: [{ type: 'text', text: JSON.stringify(payload) }] }), expected)
 })

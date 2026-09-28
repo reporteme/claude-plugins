@@ -15,28 +15,22 @@ estimado de tokens no valor da tarefa.
 
 ## Instalação
 
-1. No Reporte.me, gere um token em **Central › Integrações › Tokens** (escopos e projetos que o
-   agente pode acessar).
-2. Salve o token no perfil do seu shell — o Claude Code só enxerga variáveis que existiam quando ele
-   iniciou:
-
-   ```sh
-   echo 'export REPORTEME_TOKEN="rpm_pat_..."' >> ~/.zshrc   # bash: ~/.bashrc
-   set -Ux REPORTEME_TOKEN rpm_pat_...                       # fish
-   setx REPORTEME_TOKEN "rpm_pat_..."                        # PowerShell
-   ```
-
-   Depois abra um terminal novo (ou reinicie o VS Code/Cursor, se usa o Claude Code por lá).
-
-3. Instale pelo terminal:
+1. Instale pelo terminal:
 
    ```sh
    claude plugin marketplace add reporteme/claude-plugins
    claude plugin install reporteme@reporteme
    ```
 
-4. No Claude Code, `/mcp` deve mostrar o servidor `reporteme` conectado. Se falhar, a sessão não
-   está vendo o `REPORTEME_TOKEN` (volte ao passo 2).
+2. No Claude Code, rode `/mcp`, escolha `reporteme` e **Authenticate**. O navegador abre no
+   Reporte.me: escolha as permissões e os projetos, autorize e volte ao terminal. Não há token para
+   copiar: o Claude Code guarda o acesso no chaveiro do sistema e renova sozinho.
+
+3. Pronto: `/reporteme:run RPM-42`.
+
+A conexão aparece em **Central › Integrações › Tokens**, onde você revoga quando quiser. Testado
+com o Claude Code 2.1.83; uma versão sem login OAuth para servidores MCP mostra o `reporteme` com
+erro no `/mcp` — atualize o Claude Code.
 
 Manual completo: <https://reporte.me/integrations/manual>.
 
@@ -45,8 +39,8 @@ Manual completo: <https://reporte.me/integrations/manual>.
 | Parte | O que faz |
 |---|---|
 | `/reporteme:run` | Comando que conduz a execução de uma tarefa ou história |
-| Servidor MCP `reporteme` | `https://mcp.reporte.me/mcp`, autenticado pelo `REPORTEME_TOKEN` |
-| Hooks | Ao fim de cada tarefa, mede os tokens usados na sessão (transcript local) e envia só os totais por modelo |
+| Servidor MCP `reporteme` | `https://mcp.reporte.me/mcp`, com login OAuth no Reporte.me |
+| Hooks | Ao fim de cada tarefa, mede os tokens usados na sessão (transcript local) e envia só os totais por modelo, com o recibo que o servidor devolve ao concluir a tarefa |
 
 Nada do seu código é enviado ao Reporte.me: só o que o agente escreve no checklist e os totais de
 tokens.
@@ -55,8 +49,7 @@ tokens.
 
 | Variável | Obrigatória | Padrão |
 |---|---|---|
-| `REPORTEME_TOKEN` | sim | — |
-| `REPORTEME_URL` | não | `https://mcp.reporte.me` |
+| `REPORTEME_URL` | não (só fora de produção) | `https://mcp.reporte.me` |
 
 ---
 
