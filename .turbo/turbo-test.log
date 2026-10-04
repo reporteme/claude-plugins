@@ -1,0 +1,20 @@
+ WARN  Issue while reading "/Users/jonatas/development/reporteme/.npmrc". Failed to replace env in config: ${TIPTAP_PRO_TOKEN}
+
+> @reporte.me/claude-plugin@0.3.1 test /Users/jonatas/development/reporteme/apps/claude-plugin
+> node --test plugins/reporteme/scripts/*.test.mjs
+
+✔ deduplica por message.id e normaliza os baldes de cache (2.330375ms)
+✔ trecho da task = start → finish; overhead da história = o resto da janela (1.590375ms)
+✔ reexecução na mesma sessão usa o trecho mais recente; start sem finish não reporta (0.208917ms)
+✔ ignora tools de outros servidores com o mesmo nome (0.137875ms)
+✔ recibo: casa o finish (código digitado) com o resultado (código canônico) (0.668292ms)
+✔ recibo: sem usageReceipt (token sem tasks:cost) ou erro da tool → nada (0.18075ms)
+✔ recibo: tool_response do PostToolUse em qualquer forma (0.138833ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 88.665541
