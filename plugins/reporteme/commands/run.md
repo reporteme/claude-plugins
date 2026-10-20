@@ -1,5 +1,5 @@
 ---
-description: "Executa uma tarefa ou história do Reporte.me pelo código (ex.: /reporteme:run RPM-42)"
+description: "Executa uma tarefa, história ou fluxo de agentes do Reporte.me pelo código (ex.: /reporteme:run RPM-42)"
 argument-hint: "<código> [instrução adicional]"
 ---
 
@@ -29,6 +29,7 @@ Chame `resolve_code` com o código.
 - Se der `CODE_NOT_FOUND` ou `AMBIGUOUS_CODE`, mostre a mensagem ao usuário e pare.
 - `kind: "task"` → siga a seção 2.
 - `kind: "story"` → siga a seção 3.
+- `kind: "workflow"` → siga a seção 4.
 
 ## 2. Executar UMA tarefa
 
@@ -68,6 +69,38 @@ Não faça commit nem push a menos que o usuário peça.
 5. Ao terminar (ou se o usuário mandar parar), chame `finish_story_run(story_code, summary)`: ele libera as tarefas da fila que não foram executadas.
 6. Mostre ao usuário um quadro final: tarefa → resultado.
 
+## 4. Executar um FLUXO de agentes
+
+Um fluxo é uma sequência de etapas montada no Reporte.me (aba Fluxo do quadro): etapas de **agentes** (vários em paralelo) e **ações do quadro** (mover, tag, checklist, comentário), cada uma com saída de sucesso e de falha.
+
+1. `get_workflow_plan(code)`. Mostre um resumo curto, com quebras de linha:
+   - as tarefas (sem as `locked`, que estão com outra execução);
+   - as etapas na ordem a partir de `start`, com os agentes de cada uma.
+2. **Peça UMA aprovação** com a ferramenta de perguntas (AskUserQuestion): rodar todas as tarefas, escolher tarefas ou cancelar. Depois do sim, não pergunte de novo a cada etapa.
+3. `start_workflow_run(code, task_codes?)`. Informe as tarefas puladas (`skipped`).
+4. Para **cada** tarefa da `queue`, na ordem, **uma tarefa por vez**:
+   1. Se alguma etapa tem agente de perfil `EDIT`, crie um worktree para a tarefa a partir do commit atual, dentro do projeto (as edições ficam no diretório aberto, sem pedido extra de permissão) e sem tocar nos arquivos do usuário:
+      `git worktree add -b reporteme/<código-em-minúsculas> .claude/worktrees/<código-em-minúsculas>`
+      (se já existir, reuse). Um comando por chamada, sem `&&`, `||` nem redirecionamento, e nada de editar arquivos dentro de `.git`.
+
+      Todo agente `EDIT` da tarefa trabalha nessa pasta; passe o caminho absoluto dela no pedido.
+   2. Comece em `start` e siga:
+      - **etapa `agents`**: lance um subagente por agente, todos na mesma mensagem (em paralelo), com a ferramenta Task:
+        - perfil `EDIT` → `reporteme:executor`; perfil `READ_ONLY` → `reporteme:reviewer`;
+        - se a etapa tiver mais de um agente `EDIT`, rode esses um depois do outro (mesma pasta); os de leitura seguem em paralelo;
+        - se o agente tiver `model`, use esse modelo no subagente;
+        - no pedido de cada subagente vão: o código da tarefa, o `node_id` da etapa, o `agent_id`, a pasta de trabalho e a instrução adicional do usuário, se houver.
+
+        Espere todos. O resultado da etapa é o pior veredito: `blocked`, depois `needs_action`, depois `approved`.
+      - **etapa `action`**: `apply_workflow_action(code, node_id)`. `ok: true` conta como `approved`; `ok: false` como `needs_action`.
+      - `approved` → vá para `next`. Outro resultado → vá para `onFailure`; sem `onFailure`, a tarefa termina com esse resultado.
+      - `next` nulo → a tarefa terminou com `approved`.
+   3. `finish_workflow_task(code, result, summary)` com o resultado final e um resumo curto.
+5. No fim (ou se o usuário mandar parar), `finish_workflow_run(code, summary)`: ele libera as tarefas da fila que não rodaram.
+6. Mostre o quadro final: tarefa → resultado → veredito de cada agente, e as pastas e branches criadas. Se `.claude/worktrees/` aparecer no `git status` do projeto, diga ao usuário que pode ignorá-la (ex.: `.claude/worktrees/` no `.gitignore`); não altere esse arquivo por conta própria.
+
+Não faça commit nem push a menos que o usuário peça. O Reporte.me mostra a execução ao vivo na aba Fluxo do quadro.
+
 ## Custo de tokens
 
-O plugin mede o uso de tokens sozinho (hook ao fim de `finish_task`/`finish_story_run`) e o Reporte.me cria sozinho um item de custo no checklist e soma o valor da tarefa. Não chame `report_usage` neste cliente nem escreva custo no checklist.
+O plugin mede o uso de tokens sozinho (hook ao fim de `finish_task`/`finish_story_run`/`finish_agent_step`/`finish_workflow_run`, cada agente pelo próprio transcript) e o Reporte.me cria sozinho um item de custo no checklist e soma o valor da tarefa. Não chame `report_usage` neste cliente nem escreva custo no checklist.

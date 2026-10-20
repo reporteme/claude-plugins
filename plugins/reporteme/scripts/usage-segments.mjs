@@ -12,7 +12,8 @@
 // história = mensagens entre `queue_story_tasks` e `finish_story_run` que não
 // caem em nenhum trecho de task.
 
-const TOOL_SUFFIX = /__(start_task|finish_task|queue_story_tasks|finish_story_run)$/
+const TOOL_SUFFIX =
+  /__(start_task|finish_task|queue_story_tasks|finish_story_run|start_workflow_run|finish_workflow_run)$/
 
 export function parseJsonl(text) {
   const rows = []
@@ -125,13 +126,94 @@ export function buildReports(messages) {
   return { tasks, stories }
 }
 
+/**
+ * Uso do ORQUESTRADOR de cada fluxo (`/reporteme:run <código do fluxo>`): só as
+ * mensagens da sessão principal entre `start_workflow_run` e
+ * `finish_workflow_run`. O trabalho dos agentes vive nos transcripts dos
+ * subagentes e é medido por etapa (`stepReports`).
+ */
+export function workflowReports(mainMessages) {
+  const windows = segments(reportemeCalls(mainMessages), 'start_workflow_run', 'finish_workflow_run')
+  return [...windows].map(([code, w]) => ({
+    code,
+    overhead: sumUsage(mainMessages.filter((m) => within(m, w))),
+  }))
+}
+
+const STEP_FINISH = /__finish_agent_step$/
+
+/**
+ * Uso de cada etapa de agente: um subagente grava o próprio transcript, então
+ * a etapa é o arquivo dele até o `finish_agent_step` (e, se o mesmo subagente
+ * fechar mais de uma, o trecho desde o fechamento anterior). O recibo vem no
+ * `tool_result` do fechamento.
+ */
+export function stepReports(fileRows) {
+  const reports = []
+  for (const rows of fileRows) {
+    const messages = assistantMessages(rows)
+    const finishes = []
+    const byToolUse = new Map()
+    for (const message of messages) {
+      for (const block of message.blocks) {
+        if (block?.type !== 'tool_use' || typeof block.name !== 'string') continue
+        if (!block.name.includes('reporteme') || !STEP_FINISH.test(block.name)) continue
+        const stepId = String(block.input?.step_id ?? '').trim()
+        if (!stepId) continue
+        const finish = { stepId, at: message.at, receipt: null }
+        finishes.push(finish)
+        byToolUse.set(block.id, finish)
+      }
+    }
+    for (const row of rows) {
+      const content = row?.message?.content
+      if (!Array.isArray(content)) continue
+      for (const block of content) {
+        if (block?.type !== 'tool_result' || !byToolUse.has(block.tool_use_id)) continue
+        const receipt = receiptOf(block.content)
+        if (receipt) byToolUse.get(block.tool_use_id).receipt = receipt
+      }
+    }
+    let from = -Infinity
+    for (const finish of finishes) {
+      const usage = sumUsage(messages.filter((m) => m.at > from && m.at <= finish.at))
+      reports.push({ stepId: finish.stepId, receipt: finish.receipt, usage })
+      from = finish.at
+    }
+  }
+  return reports
+}
+
+/** `usageReceipt` de uma resposta de tool, em qualquer forma gravada. */
+function receiptOf(value) {
+  if (typeof value === 'string') {
+    try {
+      return receiptOf(JSON.parse(value))
+    } catch {
+      return null
+    }
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = receiptOf(item?.type === 'text' ? item.text : item)
+      if (found) return found
+    }
+    return null
+  }
+  if (value && typeof value === 'object') {
+    if (typeof value.usageReceipt === 'string') return value.usageReceipt
+    if ('content' in value) return receiptOf(value.content)
+  }
+  return null
+}
+
 // ── Recibos de uso ────────────────────────────────────────────────────────────
 //
 // `finish_task`/`finish_story_run` devolvem `{ code, usageReceipt }`: o recibo
 // autoriza SÓ o envio do uso daquela execução. Com login OAuth o hook não tem
 // o token (quem guarda é o Claude Code), então é o recibo que vai no Bearer.
 
-const FINISH_SUFFIX = /__(finish_task|finish_story_run)$/
+const FINISH_SUFFIX = /__(finish_task|finish_story_run|finish_workflow_run)$/
 
 /**
  * `{ code, usageReceipt }` de uma resposta de tool, em qualquer das formas que

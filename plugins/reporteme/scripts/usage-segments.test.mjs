@@ -7,6 +7,8 @@ import {
   finishResult,
   normalizeUsage,
   receiptsFromRows,
+  stepReports,
+  workflowReports,
 } from './usage-segments.mjs'
 
 const TOOL = 'mcp__plugin_reporteme_reporteme__'
@@ -134,4 +136,46 @@ test('recibo: tool_response do PostToolUse em qualquer forma', () => {
   assert.deepEqual(finishResult(payload), expected)
   assert.deepEqual(finishResult([{ type: 'text', text: JSON.stringify(payload) }]), expected)
   assert.deepEqual(finishResult({ content: [{ type: 'text', text: JSON.stringify(payload) }] }), expected)
+})
+
+test('etapa de agente = o transcript do subagente até o finish_agent_step, com o recibo dele', () => {
+  const qa = [
+    ...message('q1', { input: 100, output: 10, tool: 'start_agent_step', args: { code: 'RPM-1', node_id: 'a', agent_id: 'qa' } }),
+    ...message('q2', { input: 50, output: 20, model: 'claude-sonnet-5-5' }),
+    ...message('q3', { input: 5, output: 1, tool: 'finish_agent_step', args: { step_id: 'step-qa', verdict: 'approved' } }),
+    toolResult('q3', { stepId: 'step-qa', usageReceipt: 'rcpt-qa' }),
+  ]
+  const po = [
+    ...message('p1', { input: 30, output: 3, tool: 'finish_agent_step', args: { step_id: 'step-po', verdict: 'needs_action' } }),
+  ]
+  const reports = stepReports([qa, po])
+  assert.deepEqual(
+    reports.map((r) => [r.stepId, r.receipt]),
+    [
+      ['step-qa', 'rcpt-qa'],
+      ['step-po', null],
+    ],
+  )
+  assert.equal(reports[0].usage['claude-opus-5-5'].input, 105)
+  assert.equal(reports[0].usage['claude-sonnet-5-5'].input, 50)
+})
+
+test('uso do orquestrador do fluxo só conta a sessão principal na janela do run', () => {
+  const main = assistantMessages([
+    ...message('o0', { input: 999 }),
+    ...message('o1', { input: 10, tool: 'start_workflow_run', args: { code: 'rpm-57' } }),
+    ...message('o2', { input: 20 }),
+    ...message('o3', { input: 1, tool: 'finish_workflow_run', args: { code: 'RPM-57' } }),
+  ])
+  const [flow] = workflowReports(main)
+  assert.equal(flow.code, 'RPM-57')
+  assert.equal(flow.overhead['claude-opus-5-5'].input, 31)
+})
+
+test('recibo do finish_workflow_run entra no mapa de recibos', () => {
+  const rows = [
+    ...message('f1', { tool: 'finish_workflow_run', args: { code: 'RPM-57' } }),
+    toolResult('f1', { code: 'RPM-57', usageReceipt: 'rcpt-flow' }),
+  ]
+  assert.deepEqual(receiptsFromRows(rows).get('RPM-57'), { code: 'RPM-57', receipt: 'rcpt-flow' })
 })
