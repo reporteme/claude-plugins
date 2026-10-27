@@ -49,30 +49,55 @@ com prazo, estimativa e dependências.
 | `create_board` · `update_board` | Cria o quadro (a história) e altera título e data de início |
 | `create_list` | Cria uma lista (coluna) no quadro |
 | `create_task` | Cria a tarefa com descrição, início, prazo, estimativa, etiquetas, checklist e dependências |
-| `update_task` | Altera título, datas, estimativa, lista ou status, etiquetas (põe e tira), você como responsável e dependências |
+| `update_task` | Altera título, datas, estimativa, lista ou status, etiquetas (põe e tira), você como responsável, dependências e o agente vinculado |
+| `list_agents` | Lista os agentes que podem ser vinculados a uma tarefa |
+| `get_day_summary` | O que você tem para hoje: atrasadas, de hoje, em revisão e da semana |
 
 - Criar é idempotente pelo título: repetir o pedido devolve o item que já existe, sem duplicar.
 - Ao executar uma tarefa, a descrição é sua: o agente registra o resto no checklist.
+- Tarefa que veio de formulário, de automação com resposta ou de membro sem papel de administrador
+  só é executada depois que um administrador clica em **Liberar para agentes** no card.
 - A permissão **não vem marcada** no login. Conexão criada antes dela existir não a recebe:
   revogue em **Central › Integrações › Tokens** e entre de novo marcando a opção.
 
 ## Editar descrição, excluir e formulários
 
 Permissões à parte, também desmarcadas no login: **Editar descrição e excluir tarefas**,
-**Ler formulários** e **Editar formulários**.
+**Ler formulários**, **Editar formulários** e **Respostas de formulários**.
 
 | Tool | O que faz |
 |---|---|
 | `update_description` | Reescreve a descrição de uma tarefa ou história |
+| `update_checklist_item` · `remove_checklist_item` | Renomeia e remove itens do checklist da tarefa |
 | `archive_task` · `restore_task` | Exclui mandando para a Lixeira (volta pela Lixeira, pelo filtro "Mostrar na lixeira" ou por `restore_task`) |
-| `list_forms` · `get_form` | Lista os formulários e lê os campos de um |
+| `list_forms` · `get_form` | Lista todos os formulários, com o código e onde cada um está (projeto ou avulso), e lê os campos de um (pelo id ou pelo código) |
+| `list_form_responses` | Lê as respostas de um formulário, em páginas, com filtro por período e aprovação (quem criou o formulário, quem edita as respostas e administradores) |
+| `create_form_response` · `update_form_response` · `delete_form_response` | Cria, edita e exclui respostas (só quem está na lista de editores das respostas) |
+| `create_form` | Cria o formulário com os campos e devolve o link para responder; você escolhe onde: num projeto, num quadro (as respostas viram tarefa na lista escolhida), avulso ou num projeto novo |
 | `update_form` | Muda nome e descrição do formulário |
 | `add_form_fields` · `update_form_field` · `remove_form_field` | Cria, edita, reordena e remove campos |
+| `send_form_email` | Envia o link do formulário por e-mail |
+| `archive_form` | Exclui o formulário mandando para a Lixeira (volta pela Lixeira) |
 
-- Reescrever descrição, excluir tarefa e remover campo **pedem a sua confirmação**: o agente
+- Reescrever descrição, excluir tarefa, remover item do checklist, remover campo, excluir formulário, excluir resposta e enviar formulário por e-mail **pedem a sua confirmação**: o agente
   mostra a prévia e só aplica depois que você aprova.
 - Tudo fica na auditoria com quem, quando e por qual conexão; a descrição anterior fica guardada.
-- Criar e apagar o formulário em si continua na tela.
+- Excluir o formulário de vez continua na Lixeira do Reporte.me.
+
+## Agentes
+
+Permissão à parte, desmarcada no login: **Criar e editar agentes** (só proprietários e
+administradores do espaço).
+
+| Tool | O que faz |
+|---|---|
+| `create_agent` · `update_agent` | Cria o agente (nome, cargo, descrição, perfil e instruções) e altera os campos enviados |
+| `add_agent_skill` · `update_agent_skill` · `remove_agent_skill` | Cuida das skills no formato SKILL.md; cada mudança grava uma versão nova do agente |
+| `delete_agent` | Exclui o agente; a prévia diz quantas tarefas ficam sem agente |
+
+- Remover skill e excluir agente **pedem a sua confirmação**.
+- Agentes do Reporte.me são só leitura: para personalizar, use **Duplicar** no Reporte.me.
+- Tudo fica na auditoria; o conteúdo do agente excluído fica guardado nela.
 
 ## Instalação
 

@@ -1,18 +1,18 @@
- WARN  Issue while reading "/Users/jonatas/development/reporteme/.npmrc". Failed to replace env in config: ${TIPTAP_PRO_TOKEN}
+ WARN  Issue while reading "/home/jonatas/development/reporteme/.npmrc". Failed to replace env in config: ${TIPTAP_PRO_TOKEN}
 
-> @reporte.me/claude-plugin@0.3.1 test /Users/jonatas/development/reporteme/apps/claude-plugin
+> @reporte.me/claude-plugin@0.3.1 test /home/jonatas/development/reporteme/apps/claude-plugin
 > node --test plugins/reporteme/scripts/*.test.mjs
 
-✔ deduplica por message.id e normaliza os baldes de cache (1.54675ms)
-✔ trecho da task = start → finish; overhead da história = o resto da janela (1.41975ms)
-✔ reexecução na mesma sessão usa o trecho mais recente; start sem finish não reporta (0.09975ms)
-✔ ignora tools de outros servidores com o mesmo nome (0.076916ms)
-✔ recibo: casa o finish (código digitado) com o resultado (código canônico) (0.234541ms)
-✔ recibo: sem usageReceipt (token sem tasks:cost) ou erro da tool → nada (0.448542ms)
-✔ recibo: tool_response do PostToolUse em qualquer forma (0.388834ms)
-✔ etapa de agente = o transcript do subagente até o finish_agent_step, com o recibo dele (0.657542ms)
-✔ uso do orquestrador do fluxo só conta a sessão principal na janela do run (0.265292ms)
-✔ recibo do finish_workflow_run entra no mapa de recibos (0.19425ms)
+✔ deduplica por message.id e normaliza os baldes de cache (1.691998ms)
+✔ trecho da task = start → finish; overhead da história = o resto da janela (0.647745ms)
+✔ reexecução na mesma sessão usa o trecho mais recente; start sem finish não reporta (0.148574ms)
+✔ ignora tools de outros servidores com o mesmo nome (0.106173ms)
+✔ recibo: casa o finish (código digitado) com o resultado (código canônico) (0.359688ms)
+✔ recibo: sem usageReceipt (token sem tasks:cost) ou erro da tool → nada (0.187364ms)
+✔ recibo: tool_response do PostToolUse em qualquer forma (0.157214ms)
+✔ etapa de agente = o transcript do subagente até o finish_agent_step, com o recibo dele (0.352518ms)
+✔ uso do orquestrador do fluxo só conta a sessão principal na janela do run (0.280166ms)
+✔ recibo do finish_workflow_run entra no mapa de recibos (3.392277ms)
 ℹ tests 10
 ℹ suites 0
 ℹ pass 10
@@ -20,4 +20,4 @@
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 52.736834
+ℹ duration_ms 49.028394

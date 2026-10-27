@@ -30,6 +30,7 @@ Chame `resolve_code` com o código.
 - `kind: "task"` → siga a seção 2.
 - `kind: "story"` → siga a seção 3.
 - `kind: "workflow"` → siga a seção 4.
+- `kind: "form"` → é um formulário, não algo para executar: diga ao usuário qual é (título e código) e que ele pode pedir para ler, criar ou editar respostas ou mudar o formulário; pare.
 
 ## 2. Executar UMA tarefa
 

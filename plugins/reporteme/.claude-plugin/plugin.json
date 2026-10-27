@@ -1,6 +1,6 @@
 {
   "name": "reporteme",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Executa tarefas, histórias e fluxos de agentes do Reporte.me pelo código: lê a tarefa (descrição, print, caminho HTML), corrige no projeto, atualiza status/checklist e registra o custo de tokens. Com as permissões de escrita, também cria quadros, listas e tarefas, edita descrições, arquiva tarefas e edita formulários.",
   "author": { "name": "Reporte.me" },
   "homepage": "https://reporte.me/integrations/manual",
