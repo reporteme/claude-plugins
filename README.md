@@ -52,6 +52,7 @@ com prazo, estimativa e dependências.
 | `update_task` | Altera título, datas, estimativa, lista ou status, etiquetas (põe e tira), você como responsável, dependências e o agente vinculado |
 | `list_agents` | Lista os agentes que podem ser vinculados a uma tarefa |
 | `get_day_summary` | O que você tem para hoje: atrasadas, de hoje, em revisão e da semana |
+| `get_workspace` | Em qual espaço a conexão está, quem é o dono e o que ela pode fazer |
 
 - Criar é idempotente pelo título: repetir o pedido devolve o item que já existe, sem duplicar.
 - Ao executar uma tarefa, a descrição é sua: o agente registra o resto no checklist.
@@ -59,6 +60,29 @@ com prazo, estimativa e dependências.
   só é executada depois que um administrador clica em **Liberar para agentes** no card.
 - A permissão **não vem marcada** no login. Conexão criada antes dela existir não a recebe:
   revogue em **Central › Integrações › Tokens** e entre de novo marcando a opção.
+
+## Planejar um projeto no Ágil (com IA)
+
+Com **Ler o Ágil**, **Planejar no Ágil** e **Criar e editar tarefas e quadros**, peça
+`/reporteme:planejar-projeto` (ou, no claude.ai e no Desktop, o prompt **Planejar projeto no Ágil**
+do conector). A IA pergunta o contexto, o período e as pessoas (nome, cidade, cargo, senioridade e
+especialidade, só na conversa), sugere os feriados de cada cidade para você confirmar e propõe OKRs,
+épicos, squads, sprints, histórias e tarefas estimadas e alocadas. Nada é gravado antes do seu OK; no
+fim ela confere cada sprint com `get_sprint_plan` ("vai dar tempo?").
+
+| Tool | O que faz |
+|---|---|
+| `get_agile_overview` · `list_sprints` · `list_objectives` · `list_absences` | Retrato do Ágil: squads e membros, quarters, épicos, sprints, OKRs, feriados e ausências |
+| `list_people` | Pessoas do espaço (id e nome) para membro e responsável |
+| `create_quarter` · `create_squad` · `set_squad_member` · `create_sprint` · `create_epic` · `create_objective` | Cadastros do planejamento, idempotentes pelo nome ou código |
+| `add_absences` · `remove_absence` | Feriados e ausências em lote; remover pede confirmação |
+| `plan_stories` · `assign_task` | Histórias na sprint, no épico e na squad; quem executa cada tarefa |
+| `get_sprint_plan` | Veredito da sprint, ocupação por pessoa e tarefas sem quem execute |
+| `update_quarter` · `update_squad` · `update_sprint` · `update_epic` · `update_objective` · `update_key_result` | Corrige o que já foi criado (só os campos enviados) |
+| `remove_squad_member` · `add_key_result_checkin` · `open_sprint` · `close_sprint` | Tira membro, mede OKR, abre e fecha sprint (remover e fechar pedem confirmação) |
+| `list_story_statuses` · `create_story_status` · `update_story_status` · `reorder_story_statuses` · `set_story_status` · `reopen_story` | Fluxo de status da história e o move das histórias nele (reabrir pede confirmação) |
+| `cancel_sprint` · `archive_agile_item` · `delete_agile_item` | Com **Arquivar e excluir no Ágil**: cancelar sprint, arquivar/restaurar e excluir de vez, sempre confirmado |
+| `update_list` · `archive_list` · `archive_board` | Renomeia lista; manda lista ou história para a Lixeira (com **Editar descrição e excluir tarefas**, confirmado) |
 
 ## Editar descrição, excluir e formulários
 
@@ -98,6 +122,33 @@ administradores do espaço).
 - Remover skill e excluir agente **pedem a sua confirmação**.
 - Agentes do Reporte.me são só leitura: para personalizar, use **Duplicar** no Reporte.me.
 - Tudo fica na auditoria; o conteúdo do agente excluído fica guardado nela.
+
+## Vínculos na descrição (#)
+
+Na descrição da tarefa, digitar `#` vincula um projeto, uma nota, outra tarefa ou um formulário.
+O `get_task` e o `start_task` trazem esses vínculos numa seção própria: a nota vinculada (o
+refinamento da tarefa) vem com o conteúdo quando a conexão tem **Ler páginas, notas e cursos**.
+
+## Páginas, notas, cursos, favoritos, arquivos e contas
+
+Permissões à parte, desmarcadas no login: **Ler páginas, notas e cursos**, **Criar e editar
+páginas, notas e cursos** e **Ler arquivos**. Contas usam as permissões de tarefa.
+
+| Tool | O que faz |
+|---|---|
+| `list_pages` · `get_page` | Lista as páginas de qualquer tipo e lê uma (nota com o conteúdo) |
+| `create_page` · `update_page` | Cria página de qualquer tipo (nota, projeto, formulário, arquivos, favoritos, contas, curso, seção) e renomeia ou move |
+| `write_note` | Acrescenta ao fim da nota ou substitui o conteúdo |
+| `archive_page` | Manda a página para a Lixeira |
+| `get_course` · `update_course` | Lê o curso com módulos e aulas e muda descrição e status |
+| `create_course_module` · `update_course_module` · `archive_course_module` | Cria, renomeia e manda módulos para a Lixeira |
+| `create_lesson` · `update_lesson` · `archive_lesson` | Cria, edita o texto e manda aulas para a Lixeira (vídeo e arquivo ficam no Reporte.me) |
+| `list_bookmarks` · `create_bookmark` · `update_bookmark` · `archive_bookmark` | Links das páginas de favoritos |
+| `list_files` | Pastas e arquivos (nome, tipo, tamanho), sem baixar |
+| `list_bills` · `create_bill` · `update_bill` · `set_bill_status` · `archive_bill` | Contas do mês com totais, conta avulsa ou recorrente e o status de cada mês |
+
+- Substituir o conteúdo de uma nota ou o texto de uma aula e mandar qualquer item para a Lixeira
+  **pedem a sua confirmação**. O conteúdo anterior fica na auditoria.
 
 ## Instalação
 
@@ -140,6 +191,7 @@ Manual completo: <https://reporte.me/integrations/manual>.
 | Parte | O que faz |
 |---|---|
 | `/reporteme:run` | Comando que conduz a execução de uma tarefa, história ou fluxo |
+| `/reporteme:planejar-projeto` | Skill que monta um projeto no Ágil a partir da conversa |
 | Subagentes `reporteme:executor` e `reporteme:reviewer` | Uma etapa de fluxo com o agente do catálogo: o primeiro edita no worktree da tarefa, o segundo só lê |
 | Servidor MCP `reporteme` | `https://mcp.reporte.me/mcp`, com login OAuth no Reporte.me |
 | Hooks | Ao fim de cada tarefa, etapa de agente e fluxo, mede os tokens usados (transcript local, cada subagente pelo próprio arquivo) e envia só os totais por modelo, com o recibo que o servidor devolve ao concluir |
