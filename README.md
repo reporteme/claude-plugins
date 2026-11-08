@@ -81,7 +81,7 @@ fim ela confere cada sprint com `get_sprint_plan` ("vai dar tempo?").
 | `update_quarter` · `update_squad` · `update_sprint` · `update_epic` · `update_objective` · `update_key_result` | Corrige o que já foi criado (só os campos enviados) |
 | `remove_squad_member` · `add_key_result_checkin` · `open_sprint` · `close_sprint` | Tira membro, mede OKR, abre e fecha sprint (remover e fechar pedem confirmação) |
 | `list_story_statuses` · `create_story_status` · `update_story_status` · `reorder_story_statuses` · `set_story_status` · `reopen_story` | Fluxo de status da história e o move das histórias nele (reabrir pede confirmação) |
-| `cancel_sprint` · `archive_agile_item` · `delete_agile_item` | Com **Arquivar e excluir no Ágil**: cancelar sprint, arquivar/restaurar e excluir de vez, sempre confirmado |
+| `cancel_sprint` · `archive_agile_item` · `restore_agile_item` · `delete_agile_item` | Com **Arquivar e excluir no Ágil**: cancelar sprint, arquivar, restaurar e excluir de vez (só restaurar dispensa confirmação) |
 | `update_list` · `archive_list` · `archive_board` | Renomeia lista; manda lista ou história para a Lixeira (com **Editar descrição e excluir tarefas**, confirmado) |
 
 ## Editar descrição, excluir e formulários
@@ -138,11 +138,11 @@ páginas, notas e cursos** e **Ler arquivos**. Contas usam as permissões de tar
 |---|---|
 | `list_pages` · `get_page` | Lista as páginas de qualquer tipo e lê uma (nota com o conteúdo) |
 | `create_page` · `update_page` | Cria página de qualquer tipo (nota, projeto, formulário, arquivos, favoritos, contas, curso, seção) e renomeia ou move |
-| `write_note` | Acrescenta ao fim da nota ou substitui o conteúdo |
+| `append_note` · `replace_note` | Acrescenta ao fim da nota; substitui o conteúdo inteiro (pede confirmação) |
 | `archive_page` | Manda a página para a Lixeira |
 | `get_course` · `update_course` | Lê o curso com módulos e aulas e muda descrição e status |
 | `create_course_module` · `update_course_module` · `archive_course_module` | Cria, renomeia e manda módulos para a Lixeira |
-| `create_lesson` · `update_lesson` · `archive_lesson` | Cria, edita o texto e manda aulas para a Lixeira (vídeo e arquivo ficam no Reporte.me) |
+| `create_lesson` · `update_lesson` · `replace_lesson_text` · `archive_lesson` | Cria, edita título e módulo, troca o texto e manda aulas para a Lixeira (vídeo e arquivo ficam no Reporte.me) |
 | `list_bookmarks` · `create_bookmark` · `update_bookmark` · `archive_bookmark` | Links das páginas de favoritos |
 | `list_files` | Pastas e arquivos (nome, tipo, tamanho), sem baixar |
 | `list_bills` · `create_bill` · `update_bill` · `set_bill_status` · `archive_bill` | Contas do mês com totais, conta avulsa ou recorrente e o status de cada mês |
@@ -172,7 +172,8 @@ A conexão aparece em **Central › Integrações › Tokens**, onde você revog
 com o Claude Code 2.1.287; uma versão sem login OAuth para servidores MCP mostra o `reporteme` com
 erro no `/mcp` — atualize o Claude Code.
 
-Manual completo: <https://reporte.me/integrations/manual>.
+Documentação pública: <https://reporte.me/recursos/agentes-de-ia>. Já logado, o passo a passo de
+cada forma de integrar fica em <https://reporte.me/integrations/manual>.
 
 ## Se o comando não aparecer
 
@@ -199,6 +200,27 @@ Manual completo: <https://reporte.me/integrations/manual>.
 Nada do seu código é enviado ao Reporte.me: só o que o agente escreve no checklist e os totais de
 tokens.
 
+## Exemplos de pedido
+
+```text
+/reporteme:run RPM-42
+O que eu tenho para hoje no Reporte.me?
+Crie no projeto RPM um quadro "Lançamento" com as tarefas do arquivo plano.md, com prazo e estimativa.
+/reporteme:planejar-projeto
+Liste as respostas da última semana do formulário de inscrição.
+```
+
+## Privacidade e segurança
+
+- O plugin só conversa com `https://mcp.reporte.me`. O que chega ao Reporte.me: o que o agente
+  escreve na tarefa (checklist, comentários, tarefas e quadros criados) e os totais de tokens por
+  modelo. Código, arquivos e transcript ficam na sua máquina.
+- Cada conexão vê só os projetos e as permissões escolhidos no login, e é revogada em
+  **Central › Integrações › Tokens**.
+- Política de privacidade: <https://reporte.me/terms#privacidade>.
+- Vulnerabilidades: escreva para <contato@reporte.me> (também em
+  <https://reporte.me/.well-known/security.txt>).
+
 ## Variáveis
 
 | Variável | Obrigatória | Padrão |
@@ -207,5 +229,5 @@ tokens.
 
 ---
 
-Este repositório é gerado a partir do monorepo do Reporte.me; mudanças feitas aqui são
+Licença MIT (arquivo `LICENSE`). Este repositório é gerado a partir do monorepo do Reporte.me; mudanças feitas aqui são
 sobrescritas na próxima publicação.
