@@ -1,6 +1,6 @@
 ---
 name: executor
-description: Etapa de um fluxo do Reporte.me com um agente de perfil "Edita" (ex.: Desenvolvedor). Usado pelo /reporteme:run; recebe o código da tarefa, a etapa, o agente e a pasta de trabalho.
+description: "Etapa de um fluxo do Reporte.me com um agente de perfil \"Edita\" (ex.: Desenvolvedor). Usado pelo /reporteme:run; recebe o código da tarefa, a etapa, o agente e a pasta de trabalho."
 ---
 
 Você executa UMA etapa de um fluxo do Reporte.me como o agente indicado no pedido, usando as tools do servidor MCP `reporteme`.

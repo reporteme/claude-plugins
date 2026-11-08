@@ -2,6 +2,18 @@
 
 Mudanças de `@reporte.me/claude-plugin` (`apps/rpm-fed-claude-plugin`). Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), versão [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.2.3] - 2026-11-08
+
+### Alterado
+
+- Diretório da Claude (RP-133), achados da validação do portal:
+  - `.mcp.json` com URL fixa `https://mcp.reporte.me/mcp` (sem `REPORTEME_URL`): o portal lê o endereço e pareia o plugin com o conector. Teste local passa a ser pelo `claude mcp add` (aba de token do manual).
+  - Hook de uso não lê mais `REPORTEME_TOKEN` nem `REPORTEME_URL`: só envia com o recibo do `finish_*` (achado "credencial da máquina").
+  - Hooks em `command` + `args` (`node` + o script), em vez de uma linha só.
+  - `description` dos subagentes `executor` e `reviewer` entre aspas no frontmatter.
+  - `icon.png` recomprimido (mesmos pixels): o scan via um padrão de "download e execução" nos bytes do arquivo.
+- Plugin `reporteme`: de `1.2.2` para `1.2.3`.
+
 ## [1.2.2] - 2026-11-08
 
 ### Adicionado

@@ -4,7 +4,8 @@
 // mcp-server (`PUT /v1/tasks/:code/usage`, `PUT /v1/stories/:code/usage`,
 // `PUT /v1/steps/:id/usage` por agente de fluxo, `PUT /v1/workflows/:code/usage`).
 // Autentica com o RECIBO que o `finish_*` devolveu (o login OAuth deixa o token
-// com o Claude Code); `REPORTEME_TOKEN` só entra se não houver recibo.
+// com o Claude Code): sem recibo, nada é enviado. Não lê credencial da máquina
+// nem variável de ambiente (exigência do diretório de plugins da Claude, RP-133).
 // Reenviar é seguro: o servidor substitui o snapshot, nunca soma.
 // Nunca bloqueia o agente: qualquer falha sai com código 0 e uma linha no stderr.
 
@@ -21,8 +22,7 @@ import {
   workflowReports,
 } from './usage-segments.mjs'
 
-const BASE_URL = (process.env.REPORTEME_URL || 'https://mcp.reporte.me').replace(/\/+$/, '')
-const TOKEN = process.env.REPORTEME_TOKEN
+const BASE_URL = 'https://mcp.reporte.me'
 
 async function readStdin() {
   let data = ''
@@ -80,11 +80,11 @@ async function main() {
   if (onlyCode && fresh) receipts.set(onlyCode, fresh)
   const client = `claude-code${process.env.CLAUDE_CODE_VERSION ? ` ${process.env.CLAUDE_CODE_VERSION}` : ''}`
 
-  // Recibo → código canônico devolvido pelo servidor; sem recibo, token do ambiente.
+  // Recibo → código canônico devolvido pelo servidor; sem recibo, não envia.
   const target = (code) => {
     const receipt = receipts.get(code)
     if (receipt) return { code: receipt.code, bearer: receipt.receipt }
-    return TOKEN ? { code, bearer: TOKEN } : null
+    return null
   }
 
   for (const task of tasks) {
@@ -112,7 +112,7 @@ async function main() {
   // Fluxo: cada etapa de agente pelo recibo do finish_agent_step dela (sempre
   // todas: o snapshot substitui, e o hook pode vir de dentro do subagente).
   for (const step of stepReports(session.subagents)) {
-    const bearer = step.receipt ?? TOKEN
+    const bearer = step.receipt
     if (!bearer || Object.keys(step.usage).length === 0) continue
     await put(`/v1/steps/${encodeURIComponent(step.stepId)}/usage`, bearer, {
       usage: step.usage,

@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Etapa de um fluxo do Reporte.me com um agente de perfil "Só lê" (ex.: Revisor de código, Revisor LGPD, PO, QA). Usado pelo /reporteme:run; lê o projeto e a tarefa e registra o parecer, sem editar arquivos.
+description: "Etapa de um fluxo do Reporte.me com um agente de perfil \"Só lê\" (ex.: Revisor de código, Revisor LGPD, PO, QA). Usado pelo /reporteme:run; lê o projeto e a tarefa e registra o parecer, sem editar arquivos."
 tools: Read, Grep, Glob, mcp__plugin_reporteme_reporteme__start_agent_step, mcp__plugin_reporteme_reporteme__get_agent_skill, mcp__plugin_reporteme_reporteme__get_task, mcp__plugin_reporteme_reporteme__get_task_attachment, mcp__plugin_reporteme_reporteme__set_task_checklist, mcp__plugin_reporteme_reporteme__add_task_comment, mcp__plugin_reporteme_reporteme__apply_task_tag, mcp__plugin_reporteme_reporteme__finish_agent_step
 ---
 

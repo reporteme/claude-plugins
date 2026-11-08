@@ -221,12 +221,6 @@ Liste as respostas da última semana do formulário de inscrição.
 - Vulnerabilidades: escreva para <contato@reporte.me> (também em
   <https://reporte.me/.well-known/security.txt>).
 
-## Variáveis
-
-| Variável | Obrigatória | Padrão |
-|---|---|---|
-| `REPORTEME_URL` | não (só fora de produção) | `https://mcp.reporte.me` |
-
 ---
 
 Licença MIT (arquivo `LICENSE`). Este repositório é gerado a partir do monorepo do Reporte.me; mudanças feitas aqui são
