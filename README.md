@@ -11,8 +11,7 @@ repositório em que você está trabalhando:
 ```
 
 O agente lê a tarefa (descrição, print, URL, caminho e trecho de HTML capturados), corrige no seu
-projeto, move a tarefa no quadro, registra o que fez no checklist e o Reporte.me soma o custo
-estimado de tokens no valor da tarefa.
+projeto, move a tarefa no quadro e registra o que fez no checklist.
 
 ## Fluxos de agentes
 
@@ -30,8 +29,7 @@ O `/reporteme:run <código do fluxo>` mostra o plano e pede uma aprovação. Dep
 - segue a saída de falha quando um agente pede ação de alguém; sem ela, a tarefa volta ao status em
   que entrou, com "Ação necessária".
 
-Cada agente comenta com o próprio nome, e o custo dele aparece na conversa que abriu. A execução
-aparece ao vivo na aba Fluxo do quadro.
+Cada agente comenta com o próprio nome, e a execução aparece ao vivo na aba Fluxo do quadro.
 
 ## Planejar pelo agente
 
@@ -195,10 +193,8 @@ cada forma de integrar fica em <https://reporte.me/integrations/manual>.
 | `/reporteme:planejar-projeto` | Skill que monta um projeto no Ágil a partir da conversa |
 | Subagentes `reporteme:executor` e `reporteme:reviewer` | Uma etapa de fluxo com o agente do catálogo: o primeiro edita no worktree da tarefa, o segundo só lê |
 | Servidor MCP `reporteme` | `https://mcp.reporte.me/mcp`, com login OAuth no Reporte.me |
-| Hooks | Ao fim de cada tarefa, etapa de agente e fluxo, mede os tokens usados (transcript local, cada subagente pelo próprio arquivo) e envia só os totais por modelo, com o recibo que o servidor devolve ao concluir |
 
-Nada do seu código é enviado ao Reporte.me: só o que o agente escreve no checklist e os totais de
-tokens.
+Nada do seu código é enviado ao Reporte.me: só o que o agente escreve no seu espaço.
 
 ## Exemplos de pedido
 
@@ -212,9 +208,9 @@ Liste as respostas da última semana do formulário de inscrição.
 
 ## Privacidade e segurança
 
-- O plugin só conversa com `https://mcp.reporte.me`. O que chega ao Reporte.me: o que o agente
-  escreve na tarefa (checklist, comentários, tarefas e quadros criados) e os totais de tokens por
-  modelo. Código, arquivos e transcript ficam na sua máquina.
+- O plugin só conversa com `https://mcp.reporte.me`. O que chega ao Reporte.me é o que o agente
+  escreve no seu espaço (checklist, comentários, tarefas e quadros criados). Código, arquivos e
+  transcript ficam na sua máquina.
 - Cada conexão vê só os projetos e as permissões escolhidos no login, e é revogada em
   **Central › Integrações › Tokens**.
 - Política de privacidade: <https://reporte.me/terms#privacidade>.

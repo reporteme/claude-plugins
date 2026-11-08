@@ -30,9 +30,8 @@ O que eu tenho para hoje no Reporte.me?
 ## Dados
 
 O plugin só conversa com `https://mcp.reporte.me`. O que chega ao Reporte.me é o que o agente
-escreve no seu espaço (checklist, comentários, tarefas e quadros criados) e, ao fim de cada
-execução, os totais de tokens por modelo para o custo da tarefa. O seu código, os arquivos e o
-transcript ficam na sua máquina. A conexão vê só os projetos escolhidos e pode ser revogada a
+escreve no seu espaço (checklist, comentários, tarefas e quadros criados). O seu código, os
+arquivos e o transcript ficam na sua máquina. A conexão vê só os projetos escolhidos e pode ser revogada a
 qualquer momento em Central › Integrações › Tokens.
 
 - Documentação: <https://reporte.me/recursos/agentes-de-ia>

@@ -101,7 +101,3 @@ Um fluxo é uma sequência de etapas montada no Reporte.me (aba Fluxo do quadro)
 6. Mostre o quadro final: tarefa → resultado → veredito de cada agente, e as pastas e branches criadas. Se `.claude/worktrees/` aparecer no `git status` do projeto, diga ao usuário que pode ignorá-la (ex.: `.claude/worktrees/` no `.gitignore`); não altere esse arquivo por conta própria.
 
 Não faça commit nem push a menos que o usuário peça. O Reporte.me mostra a execução ao vivo na aba Fluxo do quadro.
-
-## Custo de tokens
-
-O plugin mede o uso de tokens sozinho (hook ao fim de `finish_task`/`finish_story_run`/`finish_agent_step`/`finish_workflow_run`, cada agente pelo próprio transcript) e o Reporte.me cria sozinho um item de custo no checklist e soma o valor da tarefa. Não chame `report_usage` neste cliente nem escreva custo no checklist.

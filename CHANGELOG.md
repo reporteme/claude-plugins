@@ -2,6 +2,13 @@
 
 Mudanças de `@reporte.me/claude-plugin` (`apps/rpm-fed-claude-plugin`). Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), versão [SemVer](https://semver.org/lang/pt-BR/).
 
+## [2.0.0] - 2026-11-08
+
+### Removido
+
+- Medição do custo de tokens (RP-133): saem os hooks (`hooks/hooks.json`) e os scripts `report-usage.mjs` e `usage-segments.mjs`. O diretório de plugins da Claude só aceita hooks do tipo command de organizações Verified, e o Reporte.me deixou de registrar custo de IA no valor da tarefa. O `/reporteme:run` perde a seção de custo.
+- Plugin `reporteme`: de `1.2.4` para `2.0.0` (remoção de recurso).
+
 ## [1.2.4] - 2026-11-08
 
 ### Adicionado
