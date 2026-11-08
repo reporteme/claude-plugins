@@ -2,6 +2,13 @@
 
 Mudanças de `@reporte.me/claude-plugin` (`apps/rpm-fed-claude-plugin`). Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), versão [SemVer](https://semver.org/lang/pt-BR/).
 
+## [1.2.4] - 2026-11-08
+
+### Adicionado
+
+- `plugin.json`: `displayName` "Reporte.me" (o diretório mostrava "Reporteme"), `documentationUrl`, `supportUrl` (`/contato`) e `termsOfServiceUrl`, campos que a listagem do diretório da Claude lê (RP-133).
+- Plugin `reporteme`: de `1.2.3` para `1.2.4`.
+
 ## [1.2.3] - 2026-11-08
 
 ### Alterado
